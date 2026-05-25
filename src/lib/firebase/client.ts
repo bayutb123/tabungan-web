@@ -34,7 +34,7 @@ export const db = getFirestore(app);
 let analyticsInitialized = false;
 
 export async function initAnalytics(): Promise<void> {
-  if (analyticsInitialized || typeof globalThis.window === 'undefined') return;
+  if (analyticsInitialized || globalThis.window === undefined) return;
   if (!measurementId) return;
 
   const { getAnalytics, isSupported } = await import('firebase/analytics');
