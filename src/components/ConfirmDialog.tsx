@@ -27,6 +27,12 @@ export default function ConfirmDialog({
         event.preventDefault();
         onClose();
       }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          onClose();
+        }
+      }}
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
