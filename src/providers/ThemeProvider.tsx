@@ -16,17 +16,21 @@ function applyTheme(mode: ThemeMode) {
   root.classList.toggle('dark', mode === 'dark');
 }
 
-export default function ThemeProvider({ children }: { children: ReactNode }) {
+export default function ThemeProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [mode, setMode] = useState<ThemeMode>('light');
 
   useEffect(() => {
     const saved = localStorage.getItem('theme-mode');
-    const nextMode: ThemeMode =
-      saved === 'dark' || saved === 'light'
-        ? saved
-        : window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
+    const isSavedMode = saved === 'dark' || saved === 'light';
+    const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    let nextMode: ThemeMode;
+    if (isSavedMode) {
+      nextMode = saved;
+    } else {
+      nextMode = prefersDark ? 'dark' : 'light';
+    }
+
     setMode(nextMode);
     applyTheme(nextMode);
   }, []);
