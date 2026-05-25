@@ -33,10 +33,7 @@ export default function ConfirmDialog({
         }
       }}
     >
-      <div
-        className="panel w-full max-w-md p-5 shadow-xl"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <div className="panel w-full max-w-md p-5 shadow-xl">
         <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
         <div className="mt-4 flex justify-end gap-2">
