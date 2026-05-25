@@ -16,6 +16,14 @@ import { addTransaction, deleteGoal, getGoal, subscribeTransactions } from '@/li
 import { SavingGoal, SavingTransaction } from '@/types/saving';
 import { useAuth } from '@/providers/AuthProvider';
 
+function parseDateOnlyAsLocalDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  if (!year || !month || !day) {
+    throw new Error('Terjadi kesalahan. Coba lagi.');
+  }
+  return new Date(year, month - 1, day);
+}
+
 export default function GoalDetailPage() {
   const { user } = useAuth();
   const { goalId } = useParams<{ goalId: string }>();
@@ -103,7 +111,7 @@ export default function GoalDetailPage() {
                       type: payload.type,
                       amount: payload.amount,
                       note: payload.note,
-                      transactionDate: new Date(payload.transactionDate),
+                      transactionDate: parseDateOnlyAsLocalDate(payload.transactionDate),
                     });
                     const latest = await getGoal(user.uid, goal.id);
                     setGoal(latest);
