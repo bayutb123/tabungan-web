@@ -1,5 +1,5 @@
 import { User, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db } from './client';
 
 const provider = new GoogleAuthProvider();
@@ -19,8 +19,11 @@ export async function signOutUser(): Promise<void> {
 }
 
 export async function upsertUserProfile(user: User): Promise<void> {
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+
   await setDoc(
-    doc(db, 'users', user.uid),
+    userRef,
     {
       uid: user.uid,
       displayName: user.displayName ?? '',
@@ -28,7 +31,7 @@ export async function upsertUserProfile(user: User): Promise<void> {
       photoURL: user.photoURL ?? null,
       currency: 'IDR',
       updatedAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
+      ...(userSnap.exists() ? {} : { createdAt: serverTimestamp() }),
     },
     { merge: true }
   );
