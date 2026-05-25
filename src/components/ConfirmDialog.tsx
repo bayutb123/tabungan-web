@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 type Props = {
   open: boolean;
   title: string;
@@ -17,11 +19,34 @@ export default function ConfirmDialog({
   onClose,
   onConfirm,
 }: Props) {
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    globalThis.addEventListener('keydown', onKeyDown);
+    return () => globalThis.removeEventListener('keydown', onKeyDown);
+  }, [onClose, open]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="panel w-full max-w-md p-5 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="panel w-full max-w-md p-5 shadow-xl"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+      >
         <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
         <div className="mt-4 flex justify-end gap-2">
