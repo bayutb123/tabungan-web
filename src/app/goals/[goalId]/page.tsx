@@ -71,59 +71,57 @@ export default function GoalDetailPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <div className="space-y-4">
+        <div className="space-y-5">
           {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-          <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="panel p-5">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">{goal.name}</h2>
-              <p>
-                  Saldo: {formatIDR(goal.currentBalance)} / {formatIDR(goal.targetAmount)}
+              <h2 className="text-2xl font-semibold tracking-tight">{goal.name}</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Saldo: {formatIDR(goal.currentBalance)} / {formatIDR(goal.targetAmount)}
               </p>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
-                <div className="h-full bg-brand-600" style={{ width: `${progress}%` }} />
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div className="h-full bg-slate-900 dark:bg-white" style={{ width: `${progress}%` }} />
               </div>
-              <p>{progress}% tercapai</p>
-                {goal.targetDate ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-300">
-                    Target date: {new Intl.DateTimeFormat('id-ID').format(goal.targetDate)}
-                  </p>
-                ) : null}
+              <p className="text-xs text-slate-500 dark:text-slate-300">{progress}% tercapai</p>
+              {goal.targetDate ? (
+                <p className="text-sm text-slate-500 dark:text-slate-300">
+                  Target date: {new Intl.DateTimeFormat('id-ID').format(goal.targetDate)}
+                </p>
+              ) : null}
               <div className="flex gap-2">
-                <Link href={`/goals/${goal.id}/edit`} className="rounded-lg border px-3 py-2">
-                    Edit
+                <Link href={`/goals/${goal.id}/edit`} className="btn-ghost">
+                  Edit
                 </Link>
-                <button className="rounded-lg border border-red-300 px-3 py-2 text-red-700" onClick={() => setConfirmOpen(true)}>
-                    Hapus
+                <button className="inline-flex items-center justify-center rounded-xl border border-red-300 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/80 dark:text-red-400 dark:hover:bg-red-950/30" onClick={() => setConfirmOpen(true)}>
+                  Hapus
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Tambah Transaksi</h3>
-                <TransactionForm
-                  onSubmit={async (payload) => {
-                    if (!user) return;
-                    await addTransaction({
-                      uid: user.uid,
-                      goalId: goal.id,
-                      type: payload.type,
-                      amount: payload.amount,
-                      note: payload.note,
-                      transactionDate: parseDateOnlyAsLocalDate(payload.transactionDate),
-                    });
-                    const latest = await getGoal(user.uid, goal.id);
-                    setGoal(latest);
-                  }}
-                />
-            </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold tracking-tight">Tambah Transaksi</h3>
+            <TransactionForm
+              onSubmit={async (payload) => {
+                if (!user) return;
+                await addTransaction({
+                  uid: user.uid,
+                  goalId: goal.id,
+                  type: payload.type,
+                  amount: payload.amount,
+                  note: payload.note,
+                  transactionDate: parseDateOnlyAsLocalDate(payload.transactionDate),
+                });
+                const latest = await getGoal(user.uid, goal.id);
+                setGoal(latest);
+              }}
+            />
           </div>
 
-          <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold tracking-tight">Riwayat Transaksi</h3>
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Riwayat Transaksi</h3>
-                <TransactionList transactions={transactions} />
+              <TransactionList transactions={transactions} />
             </div>
           </div>
         </div>

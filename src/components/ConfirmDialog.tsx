@@ -20,15 +20,15 @@ export default function ConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-lg dark:bg-slate-900">
-        <h2 className="text-lg font-semibold">{title}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="panel w-full max-w-md p-5 shadow-xl">
+        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-lg border px-3 py-2 text-sm">
+          <button type="button" onClick={onClose} className="btn-ghost">
             Batal
           </button>
-          <button type="button" onClick={onConfirm} className="rounded-lg bg-red-600 px-3 py-2 text-sm text-white">
+          <button type="button" onClick={onConfirm} className="inline-flex items-center justify-center rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">
             {confirmText}
           </button>
         </div>

@@ -14,15 +14,18 @@ export default function LoginPage() {
   }, [loading, router, user]);
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12">
-      <div className="rounded-xl border bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="space-y-3">
-          <h1 className="text-3xl font-bold">Tracker Tabungan</h1>
-          <p className="text-slate-600 dark:text-slate-300">Kelola target tabunganmu dengan rapi.</p>
+    <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
+      <div className="panel-soft w-full p-7">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Welcome</p>
+            <h1 className="text-3xl font-semibold tracking-tight">Tracker Tabungan</h1>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Kelola target tabunganmu dengan rapi.</p>
+          </div>
           {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
           <button
             disabled={loading}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-white disabled:opacity-60"
+            className="btn-primary w-full"
             onClick={async () => {
               setError('');
               try {

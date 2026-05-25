@@ -58,12 +58,12 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <SummaryCards {...summary} />
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" placeholder="Cari tujuan" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div className="panel-soft flex flex-col gap-2 p-3 sm:flex-row">
+            <input className="input-base" placeholder="Cari tujuan" value={search} onChange={(e) => setSearch(e.target.value)} />
             <select
-              className="min-w-44 rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900"
+              className="input-base min-w-44"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'all' | SavingGoalStatus)}
             >
@@ -72,7 +72,7 @@ export default function DashboardPage() {
               <option value="completed">Selesai</option>
               <option value="archived">Arsip</option>
             </select>
-            <Link href="/goals/new" className="rounded-lg bg-brand-600 px-4 py-2 text-center text-white">
+            <Link href="/goals/new" className="btn-primary">
               Tambah Tujuan
             </Link>
           </div>
@@ -81,7 +81,7 @@ export default function DashboardPage() {
           {!loading && !filteredGoals.length ? (
             <EmptyState title="Belum ada tujuan." description="Tambah tujuan tabungan pertama kamu sekarang." />
           ) : null}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {filteredGoals.map((goal) => (
               <GoalCard key={goal.id} goal={goal} />
             ))}
