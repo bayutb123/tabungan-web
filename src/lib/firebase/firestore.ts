@@ -5,6 +5,7 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   limit,
   onSnapshot,
   orderBy,
@@ -13,6 +14,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './client';
 import { calculateProgress } from '@/lib/progress';
@@ -145,7 +147,19 @@ export async function updateGoal(uid: string, goalId: string, input: GoalInput):
 }
 
 export async function deleteGoal(uid: string, goalId: string): Promise<void> {
-  await deleteDoc(doc(db, 'users', uid, 'savingGoals', goalId));
+  const goalRef = doc(db, 'users', uid, 'savingGoals', goalId);
+  const transactionsRef = collection(db, 'users', uid, 'savingGoals', goalId, 'transactions');
+
+  while (true) {
+    const page = await getDocs(query(transactionsRef, limit(500)));
+    if (page.empty) break;
+
+    const batch = writeBatch(db);
+    page.docs.forEach((transactionDoc) => batch.delete(transactionDoc.ref));
+    await batch.commit();
+  }
+
+  await deleteDoc(goalRef);
 }
 
 export function subscribeTransactions(
