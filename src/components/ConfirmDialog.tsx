@@ -1,7 +1,5 @@
 'use client';
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
-
 type Props = {
   open: boolean;
   title: string;
@@ -19,18 +17,22 @@ export default function ConfirmDialog({
   onClose,
   onConfirm,
 }: Props) {
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Typography>{description}</Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Batal</Button>
-        <Button onClick={onConfirm} color="error" variant="contained">
-          {confirmText}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-lg">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <p className="mt-2 text-sm text-slate-600">{description}</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="rounded-lg border px-3 py-2 text-sm">
+            Batal
+          </button>
+          <button type="button" onClick={onConfirm} className="rounded-lg bg-red-600 px-3 py-2 text-sm text-white">
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

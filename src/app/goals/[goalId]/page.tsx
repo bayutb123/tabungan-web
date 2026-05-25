@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Alert, Button, Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
 import AppShell from '@/components/AppShell';
 import AuthGuard from '@/components/AuthGuard';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -59,7 +58,9 @@ export default function GoalDetailPage() {
     return (
       <AuthGuard>
         <AppShell>
-          <Alert severity="error">{error || 'Data tabungan tidak ditemukan.'}</Alert>
+          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error || 'Data tabungan tidak ditemukan.'}
+          </p>
         </AppShell>
       </AuthGuard>
     );
@@ -70,38 +71,37 @@ export default function GoalDetailPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <Stack spacing={3}>
-          {error ? <Alert severity="error">{error}</Alert> : null}
-          <Card>
-            <CardContent>
-              <Stack spacing={1.5}>
-                <Typography variant="h5">{goal.name}</Typography>
-                <Typography>
+        <div className="space-y-4">
+          {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold">{goal.name}</h2>
+              <p>
                   Saldo: {formatIDR(goal.currentBalance)} / {formatIDR(goal.targetAmount)}
-                </Typography>
-                <LinearProgress value={progress} variant="determinate" />
-                <Typography>{progress}% tercapai</Typography>
+              </p>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                <div className="h-full bg-brand-600" style={{ width: `${progress}%` }} />
+              </div>
+              <p>{progress}% tercapai</p>
                 {goal.targetDate ? (
-                  <Typography color="text.secondary">
+                  <p className="text-sm text-slate-500">
                     Target date: {new Intl.DateTimeFormat('id-ID').format(goal.targetDate)}
-                  </Typography>
+                  </p>
                 ) : null}
-                <Stack direction="row" spacing={1}>
-                  <Button component={Link} href={`/goals/${goal.id}/edit`} variant="outlined">
+              <div className="flex gap-2">
+                <Link href={`/goals/${goal.id}/edit`} className="rounded-lg border px-3 py-2">
                     Edit
-                  </Button>
-                  <Button color="error" variant="outlined" onClick={() => setConfirmOpen(true)}>
+                </Link>
+                <button className="rounded-lg border border-red-300 px-3 py-2 text-red-700" onClick={() => setConfirmOpen(true)}>
                     Hapus
-                  </Button>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <Card>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6">Tambah Transaksi</Typography>
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Tambah Transaksi</h3>
                 <TransactionForm
                   onSubmit={async (payload) => {
                     if (!user) return;
@@ -117,19 +117,16 @@ export default function GoalDetailPage() {
                     setGoal(latest);
                   }}
                 />
-              </Stack>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6">Riwayat Transaksi</Typography>
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Riwayat Transaksi</h3>
                 <TransactionList transactions={transactions} />
-              </Stack>
-            </CardContent>
-          </Card>
-        </Stack>
+            </div>
+          </div>
+        </div>
       </AppShell>
       <ConfirmDialog
         open={confirmOpen}

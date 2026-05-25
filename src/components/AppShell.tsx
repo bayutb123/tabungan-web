@@ -2,35 +2,37 @@
 
 import Link from 'next/link';
 import { ReactNode } from 'react';
-import { AppBar, Avatar, Box, Button, Container, Stack, Toolbar, Typography } from '@mui/material';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { user, signOutUser } = useAuth();
   return (
-    <Box>
-      <AppBar position="static">
-        <Toolbar sx={{ gap: 2 }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Tracker Tabungan
-          </Typography>
-          <Button color="inherit" component={Link} href="/dashboard">
+    <div>
+      <header className="bg-brand-700 text-white">
+        <nav className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
+          <h1 className="mr-auto text-lg font-semibold">Tracker Tabungan</h1>
+          <Link href="/dashboard" className="text-sm hover:underline">
             Dashboard
-          </Button>
-          <Button color="inherit" component={Link} href="/settings">
+          </Link>
+          <Link href="/settings" className="text-sm hover:underline">
             Settings
-          </Button>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Avatar src={user?.photoURL ?? undefined} sx={{ width: 28, height: 28 }}>
-              {user?.displayName?.charAt(0) ?? 'U'}
-            </Avatar>
-            <Button color="inherit" onClick={() => signOutUser()}>
+          </Link>
+          <div className="flex items-center gap-2">
+            {user?.photoURL ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.photoURL} alt="Avatar" className="h-7 w-7 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs">
+                {user?.displayName?.charAt(0) ?? 'U'}
+              </div>
+            )}
+            <button type="button" className="rounded-md bg-white/20 px-2 py-1 text-xs" onClick={() => signOutUser()}>
               Keluar
-            </Button>
-          </Stack>
-        </Toolbar>
-      </AppBar>
-      <Container sx={{ py: 3 }}>{children}</Container>
-    </Box>
+            </button>
+          </div>
+        </nav>
+      </header>
+      <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+    </div>
   );
 }

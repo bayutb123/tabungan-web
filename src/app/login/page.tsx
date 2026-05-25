@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Box, Button, Card, CardContent, Container, Stack, Typography } from '@mui/material';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function LoginPage() {
@@ -15,33 +14,29 @@ export default function LoginPage() {
   }, [loading, router, user]);
 
   return (
-    <Container maxWidth="sm" sx={{ py: 8 }}>
-      <Card>
-        <CardContent>
-          <Stack spacing={2}>
-            <Typography variant="h4">Tracker Tabungan</Typography>
-            <Typography color="text.secondary">Kelola target tabunganmu dengan rapi.</Typography>
-            {error ? <Alert severity="error">{error}</Alert> : null}
-            <Box>
-              <Button
-                disabled={loading}
-                variant="contained"
-                onClick={async () => {
-                  setError('');
-                  try {
-                    await signInWithGoogle();
-                    router.replace('/dashboard');
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : 'Gagal masuk dengan Google.');
-                  }
-                }}
-              >
-                Masuk dengan Google
-              </Button>
-            </Box>
-          </Stack>
-        </CardContent>
-      </Card>
-    </Container>
+    <div className="mx-auto max-w-md px-4 py-12">
+      <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="space-y-3">
+          <h1 className="text-3xl font-bold">Tracker Tabungan</h1>
+          <p className="text-slate-600">Kelola target tabunganmu dengan rapi.</p>
+          {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+          <button
+            disabled={loading}
+            className="rounded-lg bg-brand-600 px-4 py-2 text-white disabled:opacity-60"
+            onClick={async () => {
+              setError('');
+              try {
+                await signInWithGoogle();
+                router.replace('/dashboard');
+              } catch (err) {
+                setError(err instanceof Error ? err.message : 'Gagal masuk dengan Google.');
+              }
+            }}
+          >
+            Masuk dengan Google
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

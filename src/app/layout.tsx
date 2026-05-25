@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import MuiProvider from '@/providers/MuiProvider';
 import AuthProvider from '@/providers/AuthProvider';
 
 export const metadata: Metadata = {
@@ -12,9 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id">
       <body>
-        <MuiProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </MuiProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

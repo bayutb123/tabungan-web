@@ -1,8 +1,7 @@
-* {
-  box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-  margin: 0;
-  background-color: #f7faf7;
+  @apply m-0 bg-slate-50 text-slate-900;
 }

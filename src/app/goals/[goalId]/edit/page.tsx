@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Alert, Stack, Typography } from '@mui/material';
 import AppShell from '@/components/AppShell';
 import AuthGuard from '@/components/AuthGuard';
 import GoalForm from '@/components/GoalForm';
@@ -30,9 +29,9 @@ export default function EditGoalPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <Stack spacing={2}>
-          <Typography variant="h5">Edit Tujuan</Typography>
-          {error ? <Alert severity="error">{error}</Alert> : null}
+        <div className="space-y-3">
+          <h2 className="text-2xl font-semibold">Edit Tujuan</h2>
+          {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
           {loading ? <LoadingState /> : null}
           {goal ? (
             <GoalForm
@@ -52,7 +51,7 @@ export default function EditGoalPage() {
               }}
             />
           ) : null}
-        </Stack>
+        </div>
       </AppShell>
     </AuthGuard>
   );
