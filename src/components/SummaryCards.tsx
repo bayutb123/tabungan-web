@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardContent, Grid, Typography } from '@mui/material';
 import { formatIDR } from '@/lib/formatCurrency';
 
 type Props = {
@@ -19,17 +18,13 @@ export default function SummaryCards({ totalBalance, totalTarget, totalProgress,
   ];
 
   return (
-    <Grid container spacing={2}>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
       {items.map((item) => (
-        <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.label}>
-          <Card>
-            <CardContent>
-              <Typography color="text.secondary">{item.label}</Typography>
-              <Typography variant="h6">{item.value}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        <div key={item.label} className="panel p-4">
+          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">{item.label}</p>
+          <p className="mt-2 text-xl font-semibold tracking-tight">{item.value}</p>
+        </div>
       ))}
-    </Grid>
+    </div>
   );
 }

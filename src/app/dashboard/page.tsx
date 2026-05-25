@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import AppShell from '@/components/AppShell';
 import AuthGuard from '@/components/AuthGuard';
 import EmptyState from '@/components/EmptyState';
@@ -59,37 +58,35 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <Stack spacing={3}>
+        <div className="space-y-6">
           <SummaryCards {...summary} />
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <TextField fullWidth label="Cari tujuan" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <TextField
-              select
-              label="Filter Status"
+          <div className="panel-soft flex flex-col gap-2 p-3 sm:flex-row">
+            <input className="input-base" placeholder="Cari tujuan" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <select
+              className="input-base min-w-44"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'all' | SavingGoalStatus)}
-              sx={{ minWidth: 180 }}
             >
-              <MenuItem value="all">Semua</MenuItem>
-              <MenuItem value="active">Aktif</MenuItem>
-              <MenuItem value="completed">Selesai</MenuItem>
-              <MenuItem value="archived">Arsip</MenuItem>
-            </TextField>
-            <Button component={Link} href="/goals/new" variant="contained">
+              <option value="all">Semua</option>
+              <option value="active">Aktif</option>
+              <option value="completed">Selesai</option>
+              <option value="archived">Arsip</option>
+            </select>
+            <Link href="/goals/new" className="btn-primary">
               Tambah Tujuan
-            </Button>
-          </Stack>
-          {error ? <Alert severity="error">{error}</Alert> : null}
+            </Link>
+          </div>
+          {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
           {loading ? <LoadingState /> : null}
           {!loading && !filteredGoals.length ? (
             <EmptyState title="Belum ada tujuan." description="Tambah tujuan tabungan pertama kamu sekarang." />
           ) : null}
-          <Stack spacing={2}>
+          <div className="space-y-3">
             {filteredGoals.map((goal) => (
               <GoalCard key={goal.id} goal={goal} />
             ))}
-          </Stack>
-        </Stack>
+          </div>
+        </div>
       </AppShell>
     </AuthGuard>
   );

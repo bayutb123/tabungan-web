@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Alert, Button, Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
 import AppShell from '@/components/AppShell';
 import AuthGuard from '@/components/AuthGuard';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -59,7 +58,9 @@ export default function GoalDetailPage() {
     return (
       <AuthGuard>
         <AppShell>
-          <Alert severity="error">{error || 'Data tabungan tidak ditemukan.'}</Alert>
+          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error || 'Data tabungan tidak ditemukan.'}
+          </p>
         </AppShell>
       </AuthGuard>
     );
@@ -70,66 +71,60 @@ export default function GoalDetailPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <Stack spacing={3}>
-          {error ? <Alert severity="error">{error}</Alert> : null}
-          <Card>
-            <CardContent>
-              <Stack spacing={1.5}>
-                <Typography variant="h5">{goal.name}</Typography>
-                <Typography>
-                  Saldo: {formatIDR(goal.currentBalance)} / {formatIDR(goal.targetAmount)}
-                </Typography>
-                <LinearProgress value={progress} variant="determinate" />
-                <Typography>{progress}% tercapai</Typography>
-                {goal.targetDate ? (
-                  <Typography color="text.secondary">
-                    Target date: {new Intl.DateTimeFormat('id-ID').format(goal.targetDate)}
-                  </Typography>
-                ) : null}
-                <Stack direction="row" spacing={1}>
-                  <Button component={Link} href={`/goals/${goal.id}/edit`} variant="outlined">
-                    Edit
-                  </Button>
-                  <Button color="error" variant="outlined" onClick={() => setConfirmOpen(true)}>
-                    Hapus
-                  </Button>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+        <div className="space-y-5">
+          {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+          <div className="panel p-5">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">{goal.name}</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Saldo: {formatIDR(goal.currentBalance)} / {formatIDR(goal.targetAmount)}
+              </p>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div className="h-full bg-slate-900 dark:bg-white" style={{ width: `${progress}%` }} />
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-300">{progress}% tercapai</p>
+              {goal.targetDate ? (
+                <p className="text-sm text-slate-500 dark:text-slate-300">
+                  Target date: {new Intl.DateTimeFormat('id-ID').format(goal.targetDate)}
+                </p>
+              ) : null}
+              <div className="flex gap-2">
+                <Link href={`/goals/${goal.id}/edit`} className="btn-ghost">
+                  Edit
+                </Link>
+                <button className="inline-flex items-center justify-center rounded-xl border border-red-300 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/80 dark:text-red-400 dark:hover:bg-red-950/30" onClick={() => setConfirmOpen(true)}>
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <Card>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6">Tambah Transaksi</Typography>
-                <TransactionForm
-                  onSubmit={async (payload) => {
-                    if (!user) return;
-                    await addTransaction({
-                      uid: user.uid,
-                      goalId: goal.id,
-                      type: payload.type,
-                      amount: payload.amount,
-                      note: payload.note,
-                      transactionDate: parseDateOnlyAsLocalDate(payload.transactionDate),
-                    });
-                    const latest = await getGoal(user.uid, goal.id);
-                    setGoal(latest);
-                  }}
-                />
-              </Stack>
-            </CardContent>
-          </Card>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold tracking-tight">Tambah Transaksi</h3>
+            <TransactionForm
+              onSubmit={async (payload) => {
+                if (!user) return;
+                await addTransaction({
+                  uid: user.uid,
+                  goalId: goal.id,
+                  type: payload.type,
+                  amount: payload.amount,
+                  note: payload.note,
+                  transactionDate: parseDateOnlyAsLocalDate(payload.transactionDate),
+                });
+                const latest = await getGoal(user.uid, goal.id);
+                setGoal(latest);
+              }}
+            />
+          </div>
 
-          <Card>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6">Riwayat Transaksi</Typography>
-                <TransactionList transactions={transactions} />
-              </Stack>
-            </CardContent>
-          </Card>
-        </Stack>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold tracking-tight">Riwayat Transaksi</h3>
+            <div className="space-y-2">
+              <TransactionList transactions={transactions} />
+            </div>
+          </div>
+        </div>
       </AppShell>
       <ConfirmDialog
         open={confirmOpen}

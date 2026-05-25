@@ -1,12 +1,10 @@
 'use client';
 
-import { Box, CircularProgress, Typography } from '@mui/material';
-
 export default function LoadingState({ message = 'Memuat data...' }: { message?: string }) {
   return (
-    <Box minHeight="40vh" display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap={2}>
-      <CircularProgress />
-      <Typography color="text.secondary">{message}</Typography>
-    </Box>
+    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-slate-700 dark:border-t-white" />
+      <p className="text-sm text-slate-500 dark:text-slate-300">{message}</p>
+    </div>
   );
 }

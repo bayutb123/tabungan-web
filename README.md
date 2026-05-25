@@ -5,7 +5,7 @@ Aplikasi web untuk mencatat target tabungan pribadi secara manual (bukan fintech
 ## Tech Stack
 - Next.js App Router + TypeScript
 - React
-- Material UI
+- Tailwind CSS
 - Firebase Authentication (Google Sign-In)
 - Cloud Firestore
 

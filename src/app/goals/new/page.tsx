@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Stack, Typography } from '@mui/material';
 import AppShell from '@/components/AppShell';
 import AuthGuard from '@/components/AuthGuard';
 import GoalForm from '@/components/GoalForm';
@@ -15,8 +14,8 @@ export default function NewGoalPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <Stack spacing={2}>
-          <Typography variant="h5">Tambah Tujuan</Typography>
+        <div className="space-y-3">
+          <h2 className="text-2xl font-semibold">Tambah Tujuan</h2>
           <GoalForm
             mode="create"
             onSubmit={async (values) => {
@@ -31,7 +30,7 @@ export default function NewGoalPage() {
               router.push('/dashboard');
             }}
           />
-        </Stack>
+        </div>
       </AppShell>
     </AuthGuard>
   );

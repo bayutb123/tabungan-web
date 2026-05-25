@@ -2,35 +2,42 @@
 
 import Link from 'next/link';
 import { ReactNode } from 'react';
-import { AppBar, Avatar, Box, Button, Container, Stack, Toolbar, Typography } from '@mui/material';
 import { useAuth } from '@/providers/AuthProvider';
+import { useThemeMode } from '@/providers/ThemeProvider';
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { user, signOutUser } = useAuth();
+  const { mode, toggleMode } = useThemeMode();
   return (
-    <Box>
-      <AppBar position="static">
-        <Toolbar sx={{ gap: 2 }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Tracker Tabungan
-          </Typography>
-          <Button color="inherit" component={Link} href="/dashboard">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-[#0a0a0a]/80">
+        <nav className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+          <h1 className="mr-auto text-sm font-semibold tracking-tight">Tracker Tabungan</h1>
+          <Link href="/dashboard" className="text-sm text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
             Dashboard
-          </Button>
-          <Button color="inherit" component={Link} href="/settings">
+          </Link>
+          <Link href="/settings" className="text-sm text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
             Settings
-          </Button>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Avatar src={user?.photoURL ?? undefined} sx={{ width: 28, height: 28 }}>
-              {user?.displayName?.charAt(0) ?? 'U'}
-            </Avatar>
-            <Button color="inherit" onClick={() => signOutUser()}>
+          </Link>
+          <button type="button" className="btn-ghost !rounded-lg !px-2.5 !py-1.5 !text-xs" onClick={toggleMode}>
+            {mode === 'dark' ? 'Light' : 'Dark'}
+          </button>
+          <div className="flex items-center gap-2">
+            {user?.photoURL ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.photoURL} alt="Avatar" className="h-7 w-7 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 text-xs dark:bg-slate-700">
+                {user?.displayName?.charAt(0) ?? 'U'}
+              </div>
+            )}
+            <button type="button" className="btn-ghost !rounded-lg !px-2.5 !py-1.5 !text-xs" onClick={() => signOutUser()}>
               Keluar
-            </Button>
-          </Stack>
-        </Toolbar>
-      </AppBar>
-      <Container sx={{ py: 3 }}>{children}</Container>
-    </Box>
+            </button>
+          </div>
+        </nav>
+      </header>
+      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+    </div>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Alert, Box, Button, MenuItem, Stack, TextField } from '@mui/material';
 import { SavingGoal, SavingGoalStatus } from '@/types/saving';
 
 type GoalFormValues = {
@@ -45,25 +44,23 @@ export default function GoalForm({ mode, initialData, onSubmit }: Props) {
   };
 
   return (
-    <Box component="form" onSubmit={submit}>
-      <Stack spacing={2}>
-        {error ? <Alert severity="error">{error}</Alert> : null}
-        <TextField label="Nama Tujuan" required value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
-        <TextField label="Target (IDR)" required type="number" value={values.targetAmount} onChange={(e) => setValues({ ...values, targetAmount: e.target.value })} />
-        <TextField label="Target Date" type="date" value={values.targetDate} onChange={(e) => setValues({ ...values, targetDate: e.target.value })} slotProps={{ inputLabel: { shrink: true } }} />
-        <TextField label="Kategori" value={values.category} onChange={(e) => setValues({ ...values, category: e.target.value })} />
-        <TextField label="Catatan" multiline minRows={3} value={values.note} onChange={(e) => setValues({ ...values, note: e.target.value })} />
-        {mode === 'edit' ? (
-          <TextField select label="Status" value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as SavingGoalStatus })}>
-            <MenuItem value="active">Aktif</MenuItem>
-            <MenuItem value="completed">Selesai</MenuItem>
-            <MenuItem value="archived">Arsip</MenuItem>
-          </TextField>
-        ) : null}
-        <Button disabled={loading} variant="contained" type="submit">
-          {loading ? 'Menyimpan...' : mode === 'create' ? 'Simpan Tujuan' : 'Update Tujuan'}
-        </Button>
-      </Stack>
-    </Box>
+    <form onSubmit={submit} className="panel space-y-3 p-5">
+      {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+      <input className="input-base" placeholder="Nama Tujuan" required value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
+      <input className="input-base" placeholder="Target (IDR)" required type="number" value={values.targetAmount} onChange={(e) => setValues({ ...values, targetAmount: e.target.value })} />
+      <input className="input-base" type="date" value={values.targetDate} onChange={(e) => setValues({ ...values, targetDate: e.target.value })} />
+      <input className="input-base" placeholder="Kategori" value={values.category} onChange={(e) => setValues({ ...values, category: e.target.value })} />
+      <textarea className="input-base min-h-24" placeholder="Catatan" rows={3} value={values.note} onChange={(e) => setValues({ ...values, note: e.target.value })} />
+      {mode === 'edit' ? (
+        <select className="input-base" value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as SavingGoalStatus })}>
+          <option value="active">Aktif</option>
+          <option value="completed">Selesai</option>
+          <option value="archived">Arsip</option>
+        </select>
+      ) : null}
+      <button disabled={loading} className="btn-primary" type="submit">
+        {loading ? 'Menyimpan...' : mode === 'create' ? 'Simpan Tujuan' : 'Update Tujuan'}
+      </button>
+    </form>
   );
 }

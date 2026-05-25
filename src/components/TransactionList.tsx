@@ -1,42 +1,35 @@
 'use client';
 
-import { Card, CardContent, List, ListItem, ListItemText, Stack, Typography } from '@mui/material';
 import { formatIDR } from '@/lib/formatCurrency';
 import { SavingTransaction } from '@/types/saving';
 
 export default function TransactionList({ transactions }: { transactions: SavingTransaction[] }) {
   if (!transactions.length) {
-    return <Typography color="text.secondary">Belum ada transaksi.</Typography>;
+    return <p className="text-sm text-slate-500 dark:text-slate-300">Belum ada transaksi.</p>;
   }
 
   return (
-    <List disablePadding>
+    <div className="space-y-2">
       {transactions.map((trx) => {
         const sign = trx.type === 'deposit' ? '+' : '-';
         return (
-          <ListItem key={trx.id} disableGutters sx={{ mb: 1 }}>
-            <Card sx={{ width: '100%' }}>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between">
-                  <ListItemText
-                    primary={trx.type === 'deposit' ? 'Setoran' : 'Penarikan'}
-                    secondary={new Intl.DateTimeFormat('id-ID').format(trx.transactionDate)}
-                  />
-                  <Stack alignItems="flex-end">
-                    <Typography color={trx.type === 'deposit' ? 'success.main' : 'error.main'}>
-                      {sign}
-                      {formatIDR(trx.amount)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Saldo: {formatIDR(trx.balanceAfter)}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </Card>
-          </ListItem>
+          <div key={trx.id} className="panel p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">{trx.type === 'deposit' ? 'Setoran' : 'Penarikan'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">{new Intl.DateTimeFormat('id-ID').format(trx.transactionDate)}</p>
+              </div>
+              <div className="text-right">
+                <p className={`text-sm font-medium ${trx.type === 'deposit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                  {sign}
+                  {formatIDR(trx.amount)}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Saldo: {formatIDR(trx.balanceAfter)}</p>
+              </div>
+            </div>
+          </div>
         );
       })}
-    </List>
+    </div>
   );
 }

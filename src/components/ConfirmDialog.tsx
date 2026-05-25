@@ -1,7 +1,5 @@
 'use client';
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
-
 type Props = {
   open: boolean;
   title: string;
@@ -19,18 +17,32 @@ export default function ConfirmDialog({
   onClose,
   onConfirm,
 }: Props) {
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Typography>{description}</Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Batal</Button>
-        <Button onClick={onConfirm} color="error" variant="contained">
-          {confirmText}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <dialog
+      open
+      className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClose={onClose}
+    >
+      <button
+        type="button"
+        aria-label="Tutup dialog"
+        className="absolute inset-0 h-full w-full cursor-default"
+        onClick={onClose}
+      />
+      <div className="panel relative z-10 w-full max-w-md p-5 shadow-xl">
+        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="btn-ghost">
+            Batal
+          </button>
+          <button type="button" onClick={onConfirm} className="inline-flex items-center justify-center rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </dialog>
   );
 }
