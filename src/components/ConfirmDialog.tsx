@@ -23,23 +23,15 @@ export default function ConfirmDialog({
     <dialog
       open
       className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          onClose();
-        }
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose();
-        }
-      }}
+      onClose={onClose}
     >
-      <div className="panel w-full max-w-md p-5 shadow-xl">
+      <button
+        type="button"
+        aria-label="Tutup dialog"
+        className="absolute inset-0 h-full w-full cursor-default"
+        onClick={onClose}
+      />
+      <div className="panel relative z-10 w-full max-w-md p-5 shadow-xl">
         <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
         <div className="mt-4 flex justify-end gap-2">
