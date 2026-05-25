@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
+import { useThemeMode } from '@/providers/ThemeProvider';
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { user, signOutUser } = useAuth();
+  const { mode, toggleMode } = useThemeMode();
   return (
     <div>
       <header className="bg-brand-700 text-white">
@@ -17,6 +19,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <Link href="/settings" className="text-sm hover:underline">
             Settings
           </Link>
+          <button type="button" className="rounded-md bg-white/20 px-2 py-1 text-xs" onClick={toggleMode}>
+            {mode === 'dark' ? 'Light' : 'Dark'}
+          </button>
           <div className="flex items-center gap-2">
             {user?.photoURL ? (
               // eslint-disable-next-line @next/next/no-img-element

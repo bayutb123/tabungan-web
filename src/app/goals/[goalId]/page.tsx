@@ -73,7 +73,7 @@ export default function GoalDetailPage() {
       <AppShell>
         <div className="space-y-4">
           {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
+          <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold">{goal.name}</h2>
               <p>
@@ -84,7 +84,7 @@ export default function GoalDetailPage() {
               </div>
               <p>{progress}% tercapai</p>
                 {goal.targetDate ? (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-500 dark:text-slate-300">
                     Target date: {new Intl.DateTimeFormat('id-ID').format(goal.targetDate)}
                   </p>
                 ) : null}
@@ -99,7 +99,7 @@ export default function GoalDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
+          <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Tambah Transaksi</h3>
                 <TransactionForm
@@ -120,7 +120,7 @@ export default function GoalDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
+          <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Riwayat Transaksi</h3>
                 <TransactionList transactions={transactions} />

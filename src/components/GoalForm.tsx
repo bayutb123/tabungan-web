@@ -46,13 +46,13 @@ export default function GoalForm({ mode, initialData, onSubmit }: Props) {
   return (
     <form onSubmit={submit} className="space-y-3">
       {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-      <input className="w-full rounded-lg border px-3 py-2" placeholder="Nama Tujuan" required value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
-      <input className="w-full rounded-lg border px-3 py-2" placeholder="Target (IDR)" required type="number" value={values.targetAmount} onChange={(e) => setValues({ ...values, targetAmount: e.target.value })} />
-      <input className="w-full rounded-lg border px-3 py-2" type="date" value={values.targetDate} onChange={(e) => setValues({ ...values, targetDate: e.target.value })} />
-      <input className="w-full rounded-lg border px-3 py-2" placeholder="Kategori" value={values.category} onChange={(e) => setValues({ ...values, category: e.target.value })} />
-      <textarea className="w-full rounded-lg border px-3 py-2" placeholder="Catatan" rows={3} value={values.note} onChange={(e) => setValues({ ...values, note: e.target.value })} />
+      <input className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" placeholder="Nama Tujuan" required value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
+      <input className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" placeholder="Target (IDR)" required type="number" value={values.targetAmount} onChange={(e) => setValues({ ...values, targetAmount: e.target.value })} />
+      <input className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" type="date" value={values.targetDate} onChange={(e) => setValues({ ...values, targetDate: e.target.value })} />
+      <input className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" placeholder="Kategori" value={values.category} onChange={(e) => setValues({ ...values, category: e.target.value })} />
+      <textarea className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" placeholder="Catatan" rows={3} value={values.note} onChange={(e) => setValues({ ...values, note: e.target.value })} />
         {mode === 'edit' ? (
-          <select className="w-full rounded-lg border px-3 py-2" value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as SavingGoalStatus })}>
+          <select className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as SavingGoalStatus })}>
             <option value="active">Aktif</option>
             <option value="completed">Selesai</option>
             <option value="archived">Arsip</option>

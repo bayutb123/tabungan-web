@@ -9,14 +9,14 @@ export default function SettingsPage() {
   return (
     <AuthGuard>
       <AppShell>
-        <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <div className="rounded-xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="space-y-3">
             <h2 className="text-2xl font-semibold">Settings</h2>
             {user?.photoURL ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={user.photoURL} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-lg dark:bg-slate-700">
                 {user?.displayName?.charAt(0) ?? 'U'}
               </div>
             )}

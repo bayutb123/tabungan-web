@@ -61,9 +61,9 @@ export default function DashboardPage() {
         <div className="space-y-4">
           <SummaryCards {...summary} />
           <div className="flex flex-col gap-2 sm:flex-row">
-            <input className="w-full rounded-lg border px-3 py-2" placeholder="Cari tujuan" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input className="w-full rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900" placeholder="Cari tujuan" value={search} onChange={(e) => setSearch(e.target.value)} />
             <select
-              className="min-w-44 rounded-lg border px-3 py-2"
+              className="min-w-44 rounded-lg border px-3 py-2 dark:border-slate-700 dark:bg-slate-900"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'all' | SavingGoalStatus)}
             >
