@@ -1,0 +1,69 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function validCurrency() {
+      return request.resource.data.currency == 'IDR';
+    }
+
+    function validGoalStatus() {
+      return request.resource.data.status in ['active', 'completed', 'archived'];
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if isOwner(userId);
+      allow delete: if false;
+
+      match /savingGoals/{goalId} {
+        allow read: if isOwner(userId);
+
+        allow create: if isOwner(userId)
+          && request.resource.data.ownerUid == userId
+          && validCurrency()
+          && validGoalStatus()
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 1
+          && request.resource.data.name.size() <= 80
+          && request.resource.data.targetAmount is number
+          && request.resource.data.targetAmount > 0
+          && request.resource.data.currentBalance is number
+          && request.resource.data.currentBalance >= 0;
+
+        allow update: if isOwner(userId)
+          && request.resource.data.ownerUid == userId
+          && validCurrency()
+          && validGoalStatus()
+          && request.resource.data.targetAmount is number
+          && request.resource.data.targetAmount > 0
+          && request.resource.data.currentBalance is number
+          && request.resource.data.currentBalance >= 0;
+
+        allow delete: if isOwner(userId);
+
+        match /transactions/{transactionId} {
+          allow read: if isOwner(userId);
+
+          allow create: if isOwner(userId)
+            && request.resource.data.ownerUid == userId
+            && request.resource.data.goalId == goalId
+            && request.resource.data.type in ['deposit', 'withdrawal']
+            && request.resource.data.amount is number
+            && request.resource.data.amount > 0
+            && request.resource.data.balanceAfter is number
+            && request.resource.data.balanceAfter >= 0;
+
+          allow update: if false;
+          allow delete: if isOwner(userId);
+        }
+      }
+    }
+  }
+}
