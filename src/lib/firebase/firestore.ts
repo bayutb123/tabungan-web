@@ -192,7 +192,10 @@ export async function addTransaction(input: AddTransactionInput): Promise<void> 
     const goal = goalSnap.data();
     const currentBalance = Number(goal.currentBalance);
     const targetAmount = Number(goal.targetAmount);
-    const delta = input.type === 'deposit' ? amount : input.type === 'withdrawal' ? -amount : amount;
+    let delta = amount;
+    if (input.type === 'withdrawal') {
+      delta = -amount;
+    }
     const newBalance = currentBalance + delta;
     if (newBalance < 0) {
       throw new Error('Saldo tidak cukup untuk penarikan.');
