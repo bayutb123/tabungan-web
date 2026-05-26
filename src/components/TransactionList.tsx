@@ -22,14 +22,15 @@ export default function TransactionList({ transactions }: { transactions: Saving
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-rose-600 dark:text-rose-400';
         return (
-          <div key={trx.id} className="panel p-3">
+          <div key={trx.id} className="panel p-4">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">{label}</p>
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="text-sm font-semibold tracking-tight">{label}</p>
+                {trx.note ? <p className="line-clamp-2 text-xs leading-relaxed text-slate-400 dark:text-slate-400">{trx.note}</p> : null}
                 <p className="text-xs text-slate-500 dark:text-slate-300">{new Intl.DateTimeFormat('id-ID').format(trx.transactionDate)}</p>
               </div>
-              <div className="text-right">
-                <p className={`text-sm font-medium ${amountClass}`}>
+              <div className="flex-none text-right tabular-nums">
+                <p className={`whitespace-nowrap text-base font-semibold ${amountClass}`}>
                   {sign}
                   {formatIDR(Math.abs(trx.amount))}
                 </p>
