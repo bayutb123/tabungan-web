@@ -179,7 +179,8 @@ export function subscribeTransactions(
 
 export async function addTransaction(input: AddTransactionInput): Promise<void> {
   validateTransactionInput({ type: input.type, amount: input.amount });
-  const amount = normalizeAmountInput(input.amount);
+  const normalizedAmount = normalizeAmountInput(input.amount);
+  const amount = input.type === 'adjustment' ? normalizedAmount : Math.abs(normalizedAmount);
 
   await runTransaction(db, async (transaction) => {
     const goalRef = doc(db, 'users', input.uid, 'savingGoals', input.goalId);
@@ -191,7 +192,7 @@ export async function addTransaction(input: AddTransactionInput): Promise<void> 
     const goal = goalSnap.data();
     const currentBalance = Number(goal.currentBalance);
     const targetAmount = Number(goal.targetAmount);
-    const delta = input.type === 'deposit' ? amount : -amount;
+    const delta = input.type === 'deposit' ? amount : input.type === 'withdrawal' ? -amount : amount;
     const newBalance = currentBalance + delta;
     if (newBalance < 0) {
       throw new Error('Saldo tidak cukup untuk penarikan.');

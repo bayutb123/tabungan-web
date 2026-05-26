@@ -36,6 +36,7 @@ export default function TransactionForm({ onSubmit }: Props) {
       <select className="input-base" value={type} onChange={(e) => setType(e.target.value as TransactionType)}>
         <option value="deposit">Setoran</option>
         <option value="withdrawal">Penarikan</option>
+        <option value="adjustment">Penyesuaian (+/-)</option>
       </select>
       <input className="input-base" placeholder="Nominal (IDR)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
       <input className="input-base" type="date" value={transactionDate} onChange={(e) => setTransactionDate(e.target.value)} />

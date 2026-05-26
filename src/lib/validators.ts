@@ -33,11 +33,14 @@ export function validateGoalInput(input: GoalInput): void {
 }
 
 export function validateTransactionInput(input: TransactionInput): void {
-  if (!['deposit', 'withdrawal'].includes(input.type)) {
+  if (!['deposit', 'withdrawal', 'adjustment'].includes(input.type)) {
     throw new Error('Terjadi kesalahan. Coba lagi.');
   }
   const amount = normalizeAmountInput(input.amount);
-  if (amount <= 0) {
+  if (input.type === 'adjustment' && amount === 0) {
+    throw new Error('Nominal penyesuaian tidak boleh Rp0.');
+  }
+  if (input.type !== 'adjustment' && amount <= 0) {
     throw new Error('Nominal harus lebih dari Rp0.');
   }
 }
