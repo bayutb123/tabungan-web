@@ -1,6 +1,6 @@
 export type Currency = 'IDR';
 export type SavingGoalStatus = 'active' | 'completed' | 'archived';
-export type TransactionType = 'deposit' | 'withdrawal';
+export type TransactionType = 'deposit' | 'withdrawal' | 'adjustment';
 
 export interface UserProfile {
   uid: string;
