@@ -3,6 +3,22 @@
 import { formatIDR } from '@/lib/formatCurrency';
 import { SavingTransaction } from '@/types/saving';
 
+function getTransactionPresentation(trx: SavingTransaction): { sign: '+' | '-'; label: string; amountClass: string } {
+  if (trx.type === 'deposit') {
+    return { sign: '+', label: 'Setoran', amountClass: 'text-emerald-600 dark:text-emerald-400' };
+  }
+
+  if (trx.type === 'withdrawal') {
+    return { sign: '-', label: 'Penarikan', amountClass: 'text-rose-600 dark:text-rose-400' };
+  }
+
+  if (trx.amount >= 0) {
+    return { sign: '+', label: 'Penyesuaian', amountClass: 'text-emerald-600 dark:text-emerald-400' };
+  }
+
+  return { sign: '-', label: 'Penyesuaian', amountClass: 'text-rose-600 dark:text-rose-400' };
+}
+
 export default function TransactionList({ transactions }: { transactions: SavingTransaction[] }) {
   if (!transactions.length) {
     return <p className="text-sm text-slate-500 dark:text-slate-300">Belum ada transaksi.</p>;
@@ -11,16 +27,7 @@ export default function TransactionList({ transactions }: { transactions: Saving
   return (
     <div className="space-y-2">
       {transactions.map((trx) => {
-        const sign = trx.type === 'deposit' ? '+' : trx.type === 'withdrawal' ? '-' : trx.amount >= 0 ? '+' : '-';
-        const label = trx.type === 'deposit' ? 'Setoran' : trx.type === 'withdrawal' ? 'Penarikan' : 'Penyesuaian';
-        const amountClass =
-          trx.type === 'deposit'
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : trx.type === 'withdrawal'
-              ? 'text-rose-600 dark:text-rose-400'
-              : trx.amount >= 0
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-rose-600 dark:text-rose-400';
+        const { sign, label, amountClass } = getTransactionPresentation(trx);
         return (
           <div key={trx.id} className="panel p-4">
             <div className="flex items-start justify-between gap-3">
