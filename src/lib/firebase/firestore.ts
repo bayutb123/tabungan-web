@@ -381,7 +381,9 @@ export function subscribeToCashTransactions(params: {
   type?: CashTransactionType | 'all';
   categoryId?: string | 'all';
   limitCount?: number;
+  includeCreatedAtOrder?: boolean;
   callback: (transactions: CashTransaction[]) => void;
+  onError?: (error: Error) => void;
 }): () => void {
   const cashTrxRef = collection(db, 'users', params.uid, 'cashTransactions');
   const filters: QueryConstraint[] = [];
@@ -399,11 +401,18 @@ export function subscribeToCashTransactions(params: {
     filters.push(where('categoryId', '==', params.categoryId));
   }
 
-  const constraints: QueryConstraint[] = [...filters, orderBy('transactionDate', 'desc'), orderBy('createdAt', 'desc')];
+  const constraints: QueryConstraint[] = [...filters, orderBy('transactionDate', 'desc')];
+  if (params.includeCreatedAtOrder !== false) {
+    constraints.push(orderBy('createdAt', 'desc'));
+  }
   if (params.limitCount) constraints.push(limit(params.limitCount));
 
   const q = query(cashTrxRef, ...constraints);
-  return onSnapshot(q, (snapshot) => params.callback(snapshot.docs.map(mapCashTransaction)));
+  return onSnapshot(
+    q,
+    (snapshot) => params.callback(snapshot.docs.map(mapCashTransaction)),
+    (error) => params.onError?.(error)
+  );
 }
 
 export async function addCashTransaction(input: {

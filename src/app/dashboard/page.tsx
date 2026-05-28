@@ -89,19 +89,17 @@ export default function DashboardPage() {
     );
 
     const unsubCash = subscribeToCashAccount(user.uid, setCashAccount);
-    const unsubIncome = subscribeToCashTransactions({
+    const unsubMonthly = subscribeToCashTransactions({
       uid: user.uid,
-      type: 'income',
+      type: 'all',
       startDate: start,
       endDate: end,
-      callback: (rows) => setMonthlyIncome(rows.reduce((sum, row) => sum + row.amount, 0)),
-    });
-    const unsubExpense = subscribeToCashTransactions({
-      uid: user.uid,
-      type: 'expense',
-      startDate: start,
-      endDate: end,
-      callback: (rows) => setMonthlyExpense(rows.reduce((sum, row) => sum + row.amount, 0)),
+      includeCreatedAtOrder: false,
+      callback: (rows) => {
+        setMonthlyIncome(rows.filter((row) => row.type === 'income').reduce((sum, row) => sum + row.amount, 0));
+        setMonthlyExpense(rows.filter((row) => row.type === 'expense').reduce((sum, row) => sum + row.amount, 0));
+      },
+      onError: () => setError('Ringkasan transaksi bulanan gagal dimuat. Cek index Firestore.'),
     });
     const unsubIncomeCategories = subscribeCategories(user.uid, 'income', setIncomeCategories);
     const unsubExpenseCategories = subscribeCategories(user.uid, 'expense', setExpenseCategories);
@@ -115,8 +113,7 @@ export default function DashboardPage() {
     return () => {
       unsubGoals();
       unsubCash();
-      unsubIncome();
-      unsubExpense();
+      unsubMonthly();
       unsubIncomeCategories();
       unsubExpenseCategories();
       unsubRecentTransactions();
