@@ -1,4 +1,5 @@
 import {
+  QueryConstraint,
   Timestamp,
   addDoc,
   collection,
@@ -228,7 +229,7 @@ export function subscribeToCashTransactions(params: {
   callback: (transactions: CashTransaction[]) => void;
 }): () => void {
   const cashTrxRef = collection(db, 'users', params.uid, 'cashTransactions');
-  const filters = [];
+  const filters: QueryConstraint[] = [];
 
   if (params.startDate) {
     filters.push(where('transactionDate', '>=', Timestamp.fromDate(params.startDate)));
@@ -243,7 +244,7 @@ export function subscribeToCashTransactions(params: {
     filters.push(where('categoryId', '==', params.categoryId));
   }
 
-  const constraints = [...filters, orderBy('transactionDate', 'desc'), orderBy('createdAt', 'desc')];
+  const constraints: QueryConstraint[] = [...filters, orderBy('transactionDate', 'desc'), orderBy('createdAt', 'desc')];
   if (params.limitCount) constraints.push(limit(params.limitCount));
 
   const q = query(cashTrxRef, ...constraints);
