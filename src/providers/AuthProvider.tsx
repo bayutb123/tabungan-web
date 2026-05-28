@@ -4,6 +4,7 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth, initAnalytics } from '@/lib/firebase/client';
 import { signInWithGoogle as signIn, signOutUser as signOut, upsertUserProfile } from '@/lib/firebase/auth';
+import { ensureDefaultCashAccount, seedDefaultCategories } from '@/lib/firebase/firestore';
 
 type AuthContextType = {
   user: User | null;
@@ -29,6 +30,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       setUser(nextUser);
       if (nextUser) {
         await upsertUserProfile(nextUser);
+        await ensureDefaultCashAccount(nextUser.uid);
+        await seedDefaultCategories(nextUser.uid);
       }
       setLoading(false);
     });

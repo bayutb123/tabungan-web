@@ -19,7 +19,16 @@ import {
 import { db } from './client';
 import { calculateProgress } from '@/lib/progress';
 import { normalizeAmountInput, validateGoalInput, validateTransactionInput } from '@/lib/validators';
-import { SavingGoal, SavingGoalStatus, SavingTransaction, TransactionType } from '@/types/saving';
+import {
+  CashAccount,
+  CashTransaction,
+  CashTransactionType,
+  SavingGoal,
+  SavingGoalStatus,
+  SavingTransaction,
+  TransactionCategory,
+  TransactionType,
+} from '@/types/saving';
 
 type GoalInput = {
   name: string;
@@ -42,6 +51,22 @@ type AddTransactionInput = {
   note?: string | null;
   transactionDate: Date;
 };
+
+const DEFAULT_CATEGORIES: Array<Pick<TransactionCategory, 'name' | 'type' | 'sortOrder'>> = [
+  { name: 'Gaji', type: 'income', sortOrder: 1 },
+  { name: 'Freelance', type: 'income', sortOrder: 2 },
+  { name: 'Bonus', type: 'income', sortOrder: 3 },
+  { name: 'Hadiah', type: 'income', sortOrder: 4 },
+  { name: 'Lainnya', type: 'income', sortOrder: 5 },
+  { name: 'Makan & Minum', type: 'expense', sortOrder: 1 },
+  { name: 'Transportasi', type: 'expense', sortOrder: 2 },
+  { name: 'Belanja', type: 'expense', sortOrder: 3 },
+  { name: 'Tagihan', type: 'expense', sortOrder: 4 },
+  { name: 'Hiburan', type: 'expense', sortOrder: 5 },
+  { name: 'Kesehatan', type: 'expense', sortOrder: 6 },
+  { name: 'Pendidikan', type: 'expense', sortOrder: 7 },
+  { name: 'Lainnya', type: 'expense', sortOrder: 8 },
+];
 
 const toDate = (value: unknown): Date => {
   if (value instanceof Timestamp) return value.toDate();
@@ -79,6 +104,422 @@ function mapTransaction(snap: { id: string; data: () => Record<string, unknown> 
     balanceAfter: Number(data.balanceAfter),
     createdAt: toDate(data.createdAt),
   };
+}
+
+function mapCashAccount(snap: { data: () => Record<string, unknown> }): CashAccount {
+  const data = snap.data();
+  return {
+    id: 'default',
+    ownerUid: String(data.ownerUid),
+    currency: 'IDR',
+    currentBalance: Number(data.currentBalance ?? 0),
+    createdAt: toDate(data.createdAt),
+    updatedAt: toDate(data.updatedAt),
+  };
+}
+
+function mapCashTransaction(snap: { id: string; data: () => Record<string, unknown> }): CashTransaction {
+  const data = snap.data();
+  return {
+    id: snap.id,
+    ownerUid: String(data.ownerUid),
+    type: data.type as CashTransactionType,
+    amount: Number(data.amount),
+    currency: 'IDR',
+    categoryId: (data.categoryId as string | null) ?? null,
+    categoryName: (data.categoryName as string | null) ?? null,
+    note: (data.note as string | null) ?? null,
+    transactionDate: toDate(data.transactionDate),
+    relatedGoalId: (data.relatedGoalId as string | null) ?? null,
+    relatedSavingTransactionId: (data.relatedSavingTransactionId as string | null) ?? null,
+    createdAt: toDate(data.createdAt),
+    updatedAt: toDate(data.updatedAt),
+  };
+}
+
+function mapCategory(snap: { id: string; data: () => Record<string, unknown> }): TransactionCategory {
+  const data = snap.data();
+  return {
+    id: snap.id,
+    ownerUid: String(data.ownerUid),
+    type: data.type as 'income' | 'expense',
+    name: String(data.name),
+    icon: (data.icon as string | null) ?? null,
+    color: (data.color as string | null) ?? null,
+    isDefault: Boolean(data.isDefault),
+    sortOrder: Number(data.sortOrder ?? 0),
+    createdAt: toDate(data.createdAt),
+    updatedAt: toDate(data.updatedAt),
+  };
+}
+
+export async function ensureDefaultCashAccount(uid: string): Promise<void> {
+  const cashRef = doc(db, 'users', uid, 'cashAccounts', 'default');
+  const cashSnap = await getDoc(cashRef);
+  if (cashSnap.exists()) return;
+
+  await runTransaction(db, async (transaction) => {
+    const latest = await transaction.get(cashRef);
+    if (latest.exists()) return;
+    transaction.set(cashRef, {
+      id: 'default',
+      ownerUid: uid,
+      currency: 'IDR',
+      currentBalance: 0,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  });
+}
+
+export async function seedDefaultCategories(uid: string): Promise<void> {
+  const categoriesRef = collection(db, 'users', uid, 'categories');
+  const existing = await getDocs(query(categoriesRef, limit(1)));
+  if (!existing.empty) return;
+
+  const batch = writeBatch(db);
+  DEFAULT_CATEGORIES.forEach((category) => {
+    const ref = doc(categoriesRef);
+    batch.set(ref, {
+      id: ref.id,
+      ownerUid: uid,
+      type: category.type,
+      name: category.name,
+      icon: null,
+      color: null,
+      isDefault: true,
+      sortOrder: category.sortOrder,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  });
+
+  await batch.commit();
+}
+
+export function subscribeToCashAccount(uid: string, callback: (account: CashAccount | null) => void): () => void {
+  const cashRef = doc(db, 'users', uid, 'cashAccounts', 'default');
+  return onSnapshot(cashRef, (snapshot) => {
+    callback(snapshot.exists() ? mapCashAccount(snapshot) : null);
+  });
+}
+
+export function subscribeCategories(
+  uid: string,
+  type: 'income' | 'expense' | 'all',
+  callback: (categories: TransactionCategory[]) => void
+): () => void {
+  const categoriesRef = collection(db, 'users', uid, 'categories');
+  const q =
+    type === 'all'
+      ? query(categoriesRef, orderBy('type', 'asc'), orderBy('sortOrder', 'asc'))
+      : query(categoriesRef, where('type', '==', type), orderBy('sortOrder', 'asc'));
+
+  return onSnapshot(q, (snapshot) => callback(snapshot.docs.map(mapCategory)));
+}
+
+export function subscribeToCashTransactions(params: {
+  uid: string;
+  startDate?: Date;
+  endDate?: Date;
+  type?: CashTransactionType | 'all';
+  categoryId?: string | 'all';
+  limitCount?: number;
+  callback: (transactions: CashTransaction[]) => void;
+}): () => void {
+  const cashTrxRef = collection(db, 'users', params.uid, 'cashTransactions');
+  const filters = [];
+
+  if (params.startDate) {
+    filters.push(where('transactionDate', '>=', Timestamp.fromDate(params.startDate)));
+  }
+  if (params.endDate) {
+    filters.push(where('transactionDate', '<=', Timestamp.fromDate(params.endDate)));
+  }
+  if (params.type && params.type !== 'all') {
+    filters.push(where('type', '==', params.type));
+  }
+  if (params.categoryId && params.categoryId !== 'all') {
+    filters.push(where('categoryId', '==', params.categoryId));
+  }
+
+  const constraints = [...filters, orderBy('transactionDate', 'desc'), orderBy('createdAt', 'desc')];
+  if (params.limitCount) constraints.push(limit(params.limitCount));
+
+  const q = query(cashTrxRef, ...constraints);
+  return onSnapshot(q, (snapshot) => params.callback(snapshot.docs.map(mapCashTransaction)));
+}
+
+export async function addCashTransaction(input: {
+  uid: string;
+  type: 'income' | 'expense';
+  amount: number;
+  categoryId: string;
+  categoryName: string;
+  note?: string | null;
+  transactionDate: Date;
+}): Promise<void> {
+  if (!Number.isInteger(input.amount) || input.amount <= 0) throw new Error('Nominal harus lebih dari Rp0.');
+  if (!input.categoryId.trim()) throw new Error('Kategori wajib dipilih.');
+
+  await runTransaction(db, async (tx) => {
+    const cashRef = doc(db, 'users', input.uid, 'cashAccounts', 'default');
+    const cashSnap = await tx.get(cashRef);
+    const currentBalance = cashSnap.exists() ? Number(cashSnap.data().currentBalance ?? 0) : 0;
+
+    const delta = input.type === 'income' ? input.amount : -input.amount;
+    const newBalance = currentBalance + delta;
+    if (newBalance < 0) throw new Error('Saldo tersedia tidak cukup.');
+
+    const trxRef = doc(collection(db, 'users', input.uid, 'cashTransactions'));
+    if (!cashSnap.exists()) {
+      tx.set(cashRef, {
+        id: 'default',
+        ownerUid: input.uid,
+        currency: 'IDR',
+        currentBalance: newBalance,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      tx.update(cashRef, { currentBalance: newBalance, updatedAt: serverTimestamp() });
+    }
+
+    tx.set(trxRef, {
+      id: trxRef.id,
+      ownerUid: input.uid,
+      type: input.type,
+      amount: input.amount,
+      currency: 'IDR',
+      categoryId: input.categoryId,
+      categoryName: input.categoryName,
+      note: input.note?.trim() || null,
+      transactionDate: Timestamp.fromDate(input.transactionDate),
+      relatedGoalId: null,
+      relatedSavingTransactionId: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  });
+}
+
+export async function updateCashTransaction(input: {
+  uid: string;
+  transactionId: string;
+  amount: number;
+  categoryId: string;
+  categoryName: string;
+  note?: string | null;
+  transactionDate: Date;
+}): Promise<void> {
+  if (!Number.isInteger(input.amount) || input.amount <= 0) throw new Error('Nominal harus lebih dari Rp0.');
+  if (!input.categoryId.trim()) throw new Error('Kategori wajib dipilih.');
+
+  await runTransaction(db, async (tx) => {
+    const trxRef = doc(db, 'users', input.uid, 'cashTransactions', input.transactionId);
+    const cashRef = doc(db, 'users', input.uid, 'cashAccounts', 'default');
+
+    const [trxSnap, cashSnap] = await Promise.all([tx.get(trxRef), tx.get(cashRef)]);
+    if (!trxSnap.exists()) throw new Error('Transaksi tidak ditemukan.');
+
+    const trx = trxSnap.data();
+    if (!['income', 'expense'].includes(String(trx.type))) throw new Error('Transaksi ini tidak bisa diedit.');
+
+    const currentBalance = cashSnap.exists() ? Number(cashSnap.data().currentBalance ?? 0) : 0;
+    const oldSigned = trx.type === 'income' ? Number(trx.amount) : -Number(trx.amount);
+    const newSigned = trx.type === 'income' ? input.amount : -input.amount;
+    const nextBalance = currentBalance - oldSigned + newSigned;
+    if (nextBalance < 0) throw new Error('Saldo tersedia tidak cukup.');
+
+    tx.update(cashRef, { currentBalance: nextBalance, updatedAt: serverTimestamp() });
+    tx.update(trxRef, {
+      amount: input.amount,
+      categoryId: input.categoryId,
+      categoryName: input.categoryName,
+      note: input.note?.trim() || null,
+      transactionDate: Timestamp.fromDate(input.transactionDate),
+      updatedAt: serverTimestamp(),
+    });
+  });
+}
+
+export async function deleteCashTransaction(input: { uid: string; transactionId: string }): Promise<void> {
+  await runTransaction(db, async (tx) => {
+    const trxRef = doc(db, 'users', input.uid, 'cashTransactions', input.transactionId);
+    const cashRef = doc(db, 'users', input.uid, 'cashAccounts', 'default');
+
+    const [trxSnap, cashSnap] = await Promise.all([tx.get(trxRef), tx.get(cashRef)]);
+    if (!trxSnap.exists()) throw new Error('Transaksi tidak ditemukan.');
+
+    const trx = trxSnap.data();
+    if (!['income', 'expense'].includes(String(trx.type))) throw new Error('Transaksi transfer tidak bisa dihapus.');
+
+    const currentBalance = cashSnap.exists() ? Number(cashSnap.data().currentBalance ?? 0) : 0;
+    const reversal = trx.type === 'income' ? -Number(trx.amount) : Number(trx.amount);
+    const nextBalance = currentBalance + reversal;
+    if (nextBalance < 0) throw new Error('Saldo tersedia tidak cukup.');
+
+    tx.update(cashRef, { currentBalance: nextBalance, updatedAt: serverTimestamp() });
+    tx.delete(trxRef);
+  });
+}
+
+export async function transferToSavingGoal(input: {
+  uid: string;
+  goalId: string;
+  amount: number;
+  note?: string | null;
+  transactionDate: Date;
+}): Promise<void> {
+  if (!Number.isInteger(input.amount) || input.amount <= 0) throw new Error('Nominal harus lebih dari Rp0.');
+
+  await runTransaction(db, async (tx) => {
+    const cashRef = doc(db, 'users', input.uid, 'cashAccounts', 'default');
+    const goalRef = doc(db, 'users', input.uid, 'savingGoals', input.goalId);
+
+    const [cashSnap, goalSnap] = await Promise.all([tx.get(cashRef), tx.get(goalRef)]);
+    if (!goalSnap.exists()) throw new Error('Data tabungan tidak ditemukan.');
+
+    const cashBalance = cashSnap.exists() ? Number(cashSnap.data().currentBalance ?? 0) : 0;
+    if (cashBalance < input.amount) throw new Error('Saldo tersedia tidak cukup.');
+
+    const goal = goalSnap.data();
+    const goalBalance = Number(goal.currentBalance ?? 0);
+    const targetAmount = Number(goal.targetAmount ?? 0);
+
+    const nextCashBalance = cashBalance - input.amount;
+    const nextGoalBalance = goalBalance + input.amount;
+
+    const cashTrxRef = doc(collection(db, 'users', input.uid, 'cashTransactions'));
+    const savingTrxRef = doc(collection(goalRef, 'transactions'));
+
+    if (!cashSnap.exists()) {
+      tx.set(cashRef, {
+        id: 'default',
+        ownerUid: input.uid,
+        currency: 'IDR',
+        currentBalance: nextCashBalance,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      tx.update(cashRef, { currentBalance: nextCashBalance, updatedAt: serverTimestamp() });
+    }
+
+    tx.update(goalRef, {
+      currentBalance: nextGoalBalance,
+      status: nextGoalBalance >= targetAmount ? 'completed' : 'active',
+      updatedAt: serverTimestamp(),
+    });
+
+    tx.set(cashTrxRef, {
+      id: cashTrxRef.id,
+      ownerUid: input.uid,
+      type: 'transfer_to_savings',
+      amount: input.amount,
+      currency: 'IDR',
+      categoryId: null,
+      categoryName: null,
+      note: input.note?.trim() || null,
+      transactionDate: Timestamp.fromDate(input.transactionDate),
+      relatedGoalId: input.goalId,
+      relatedSavingTransactionId: savingTrxRef.id,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    tx.set(savingTrxRef, {
+      id: savingTrxRef.id,
+      ownerUid: input.uid,
+      goalId: input.goalId,
+      type: 'deposit',
+      amount: input.amount,
+      note: input.note?.trim() || null,
+      transactionDate: Timestamp.fromDate(input.transactionDate),
+      balanceAfter: nextGoalBalance,
+      relatedCashTransactionId: cashTrxRef.id,
+      createdAt: serverTimestamp(),
+    });
+  });
+}
+
+export async function transferFromSavingGoal(input: {
+  uid: string;
+  goalId: string;
+  amount: number;
+  note?: string | null;
+  transactionDate: Date;
+}): Promise<void> {
+  if (!Number.isInteger(input.amount) || input.amount <= 0) throw new Error('Nominal harus lebih dari Rp0.');
+
+  await runTransaction(db, async (tx) => {
+    const cashRef = doc(db, 'users', input.uid, 'cashAccounts', 'default');
+    const goalRef = doc(db, 'users', input.uid, 'savingGoals', input.goalId);
+
+    const [cashSnap, goalSnap] = await Promise.all([tx.get(cashRef), tx.get(goalRef)]);
+    if (!goalSnap.exists()) throw new Error('Data tabungan tidak ditemukan.');
+
+    const cashBalance = cashSnap.exists() ? Number(cashSnap.data().currentBalance ?? 0) : 0;
+    const goal = goalSnap.data();
+    const goalBalance = Number(goal.currentBalance ?? 0);
+    const targetAmount = Number(goal.targetAmount ?? 0);
+
+    if (goalBalance < input.amount) throw new Error('Saldo tabungan tidak cukup.');
+
+    const nextCashBalance = cashBalance + input.amount;
+    const nextGoalBalance = goalBalance - input.amount;
+
+    const cashTrxRef = doc(collection(db, 'users', input.uid, 'cashTransactions'));
+    const savingTrxRef = doc(collection(goalRef, 'transactions'));
+
+    if (!cashSnap.exists()) {
+      tx.set(cashRef, {
+        id: 'default',
+        ownerUid: input.uid,
+        currency: 'IDR',
+        currentBalance: nextCashBalance,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      tx.update(cashRef, { currentBalance: nextCashBalance, updatedAt: serverTimestamp() });
+    }
+
+    tx.update(goalRef, {
+      currentBalance: nextGoalBalance,
+      status: nextGoalBalance >= targetAmount ? 'completed' : 'active',
+      updatedAt: serverTimestamp(),
+    });
+
+    tx.set(cashTrxRef, {
+      id: cashTrxRef.id,
+      ownerUid: input.uid,
+      type: 'transfer_from_savings',
+      amount: input.amount,
+      currency: 'IDR',
+      categoryId: null,
+      categoryName: null,
+      note: input.note?.trim() || null,
+      transactionDate: Timestamp.fromDate(input.transactionDate),
+      relatedGoalId: input.goalId,
+      relatedSavingTransactionId: savingTrxRef.id,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    tx.set(savingTrxRef, {
+      id: savingTrxRef.id,
+      ownerUid: input.uid,
+      goalId: input.goalId,
+      type: 'withdrawal',
+      amount: input.amount,
+      note: input.note?.trim() || null,
+      transactionDate: Timestamp.fromDate(input.transactionDate),
+      balanceAfter: nextGoalBalance,
+      relatedCashTransactionId: cashTrxRef.id,
+      createdAt: serverTimestamp(),
+    });
+  });
 }
 
 export function subscribeGoals(
