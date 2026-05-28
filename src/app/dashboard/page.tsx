@@ -23,6 +23,25 @@ import { formatIDR } from '@/lib/formatCurrency';
 import { CashAccount, CashTransaction, SavingGoal, SavingGoalStatus, TransactionCategory } from '@/types/saving';
 import { useAuth } from '@/providers/AuthProvider';
 
+const FALLBACK_INCOME_CATEGORIES: TransactionCategory[] = [
+  { id: 'income-gaji', ownerUid: '', type: 'income', name: 'Gaji', icon: null, color: null, isDefault: true, sortOrder: 1, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'income-freelance', ownerUid: '', type: 'income', name: 'Freelance', icon: null, color: null, isDefault: true, sortOrder: 2, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'income-bonus', ownerUid: '', type: 'income', name: 'Bonus', icon: null, color: null, isDefault: true, sortOrder: 3, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'income-hadiah', ownerUid: '', type: 'income', name: 'Hadiah', icon: null, color: null, isDefault: true, sortOrder: 4, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'income-lainnya', ownerUid: '', type: 'income', name: 'Lainnya', icon: null, color: null, isDefault: true, sortOrder: 5, createdAt: new Date(), updatedAt: new Date() },
+];
+
+const FALLBACK_EXPENSE_CATEGORIES: TransactionCategory[] = [
+  { id: 'expense-makan-minum', ownerUid: '', type: 'expense', name: 'Makan & Minum', icon: null, color: null, isDefault: true, sortOrder: 1, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-transportasi', ownerUid: '', type: 'expense', name: 'Transportasi', icon: null, color: null, isDefault: true, sortOrder: 2, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-belanja', ownerUid: '', type: 'expense', name: 'Belanja', icon: null, color: null, isDefault: true, sortOrder: 3, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-tagihan', ownerUid: '', type: 'expense', name: 'Tagihan', icon: null, color: null, isDefault: true, sortOrder: 4, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-hiburan', ownerUid: '', type: 'expense', name: 'Hiburan', icon: null, color: null, isDefault: true, sortOrder: 5, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-kesehatan', ownerUid: '', type: 'expense', name: 'Kesehatan', icon: null, color: null, isDefault: true, sortOrder: 6, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-pendidikan', ownerUid: '', type: 'expense', name: 'Pendidikan', icon: null, color: null, isDefault: true, sortOrder: 7, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'expense-lainnya', ownerUid: '', type: 'expense', name: 'Lainnya', icon: null, color: null, isDefault: true, sortOrder: 8, createdAt: new Date(), updatedAt: new Date() },
+];
+
 function monthRange(base: Date): { start: Date; end: Date } {
   const start = new Date(base.getFullYear(), base.getMonth(), 1, 0, 0, 0, 0);
   const end = new Date(base.getFullYear(), base.getMonth() + 1, 0, 23, 59, 59, 999);
@@ -116,6 +135,8 @@ export default function DashboardPage() {
         .reduce((sum, goal) => sum + goal.currentBalance, 0),
     [goals]
   );
+  const incomeCategoryOptions = incomeCategories.length ? incomeCategories : FALLBACK_INCOME_CATEGORIES;
+  const expenseCategoryOptions = expenseCategories.length ? expenseCategories : FALLBACK_EXPENSE_CATEGORIES;
 
   return (
     <AuthGuard>
@@ -217,7 +238,8 @@ export default function DashboardPage() {
         <ActionDialog open={activeDialog === 'income'} title="Tambah Pemasukan" onClose={() => setActiveDialog(null)}>
           <CashTransactionForm
             mode="create-income"
-            categories={incomeCategories}
+            categories={incomeCategoryOptions}
+            initialValues={{ categoryId: incomeCategoryOptions[0]?.id }}
             onSubmit={async (payload) => {
               await addCashTransaction({ uid: user!.uid, type: 'income', ...payload });
               setActiveDialog(null);
@@ -227,7 +249,7 @@ export default function DashboardPage() {
         <ActionDialog open={activeDialog === 'expense'} title="Tambah Pengeluaran" onClose={() => setActiveDialog(null)}>
           <CashTransactionForm
             mode="create-expense"
-            categories={expenseCategories}
+            categories={expenseCategoryOptions}
             onSubmit={async (payload) => {
               await addCashTransaction({ uid: user!.uid, type: 'expense', ...payload });
               setActiveDialog(null);

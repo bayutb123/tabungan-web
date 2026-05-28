@@ -15,6 +15,13 @@ function parseDateOnlyAsLocalDate(value: string): Date {
   return new Date(year, month - 1, day);
 }
 
+function formatRupiahInput(value: string): string {
+  if (!value) return '';
+  const numberValue = Number.parseInt(value, 10);
+  if (!Number.isFinite(numberValue)) return '';
+  return new Intl.NumberFormat('id-ID').format(numberValue);
+}
+
 export default function TransferToSavingDialog({ mode, goals, maxCashBalance, onSubmit }: Props) {
   const [goalId, setGoalId] = useState('');
   const [amount, setAmount] = useState('');
@@ -71,7 +78,17 @@ export default function TransferToSavingDialog({ mode, goals, maxCashBalance, on
           </option>
         ))}
       </select>
-      <input className="input-base" type="number" min={1} step={1} placeholder="Nominal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-300">Rp</span>
+        <input
+          className="input-base pl-10"
+          type="text"
+          inputMode="numeric"
+          placeholder="0"
+          value={formatRupiahInput(amount)}
+          onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ''))}
+        />
+      </div>
       <input className="input-base" type="date" value={transactionDate} onChange={(e) => setTransactionDate(e.target.value)} />
       <textarea className="input-base min-h-20" rows={2} placeholder="Catatan" value={note} onChange={(e) => setNote(e.target.value)} />
       <button className="btn-primary" type="submit" disabled={loading}>

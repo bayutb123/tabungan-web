@@ -18,6 +18,13 @@ function parseDateOnlyAsLocalDate(value: string): Date {
   return new Date(year, month - 1, day);
 }
 
+function formatRupiahInput(value: string): string {
+  if (!value) return '';
+  const numberValue = Number.parseInt(value, 10);
+  if (!Number.isFinite(numberValue)) return '';
+  return new Intl.NumberFormat('id-ID').format(numberValue);
+}
+
 export default function CashTransactionForm({ mode, categories, initialValues, onSubmit, onCancel }: Props) {
   const [amount, setAmount] = useState(initialValues?.amount ? String(initialValues.amount) : '');
   const [categoryId, setCategoryId] = useState(initialValues?.categoryId ?? '');
@@ -67,7 +74,17 @@ export default function CashTransactionForm({ mode, categories, initialValues, o
     <form className="space-y-3" onSubmit={submit}>
       {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
       <p className="text-sm text-slate-600 dark:text-slate-300">Tipe: {typeLabel}</p>
-      <input className="input-base" type="number" min={1} step={1} placeholder="Nominal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-300">Rp</span>
+        <input
+          className="input-base pl-10"
+          type="text"
+          inputMode="numeric"
+          placeholder="0"
+          value={formatRupiahInput(amount)}
+          onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ''))}
+        />
+      </div>
       <select className="input-base" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
         <option value="">Pilih kategori</option>
         {categories.map((category) => (
