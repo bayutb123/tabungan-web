@@ -43,11 +43,26 @@ export default function GoalForm({ mode, initialData, onSubmit }: Props) {
     }
   };
 
+  const formattedTargetAmount = values.targetAmount
+    ? new Intl.NumberFormat('id-ID').format(Number.parseInt(values.targetAmount, 10) || 0)
+    : '';
+
   return (
-    <form onSubmit={submit} className="panel space-y-3 p-5">
+    <form onSubmit={submit} className="panel space-y-4 p-5">
       {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
       <input className="input-base" placeholder="Nama Tujuan" required value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
-      <input className="input-base" placeholder="Target (IDR)" required type="number" value={values.targetAmount} onChange={(e) => setValues({ ...values, targetAmount: e.target.value })} />
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-300">Rp</span>
+        <input
+          className="input-base pl-10"
+          placeholder="0"
+          required
+          type="text"
+          inputMode="numeric"
+          value={formattedTargetAmount}
+          onChange={(e) => setValues({ ...values, targetAmount: e.target.value.replace(/[^\d]/g, '') })}
+        />
+      </div>
       <input className="input-base" type="date" value={values.targetDate} onChange={(e) => setValues({ ...values, targetDate: e.target.value })} />
       <input className="input-base" placeholder="Kategori" value={values.category} onChange={(e) => setValues({ ...values, category: e.target.value })} />
       <textarea className="input-base min-h-24" placeholder="Catatan" rows={3} value={values.note} onChange={(e) => setValues({ ...values, note: e.target.value })} />
@@ -58,9 +73,11 @@ export default function GoalForm({ mode, initialData, onSubmit }: Props) {
           <option value="archived">Arsip</option>
         </select>
       ) : null}
-      <button disabled={loading} className="btn-primary" type="submit">
-        {loading ? 'Menyimpan...' : mode === 'create' ? 'Simpan Tujuan' : 'Update Tujuan'}
-      </button>
+      <div className="flex justify-end">
+        <button disabled={loading} className="btn-primary min-w-36" type="submit">
+          {loading ? 'Menyimpan...' : mode === 'create' ? 'Simpan Tujuan' : 'Update Tujuan'}
+        </button>
+      </div>
     </form>
   );
 }

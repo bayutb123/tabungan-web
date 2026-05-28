@@ -16,8 +16,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <Link href="/dashboard" className="text-sm text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
             Dashboard
           </Link>
+          <Link href="/transactions" className="text-sm text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+            Transaksi
+          </Link>
+          <Link href="/dashboard#tabungan" className="text-sm text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+            Tabungan
+          </Link>
           <Link href="/settings" className="text-sm text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-            Settings
+            Pengaturan
           </Link>
           <button type="button" className="btn-ghost !rounded-lg !px-2.5 !py-1.5 !text-xs" onClick={toggleMode}>
             {mode === 'dark' ? 'Light' : 'Dark'}

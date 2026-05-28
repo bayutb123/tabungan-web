@@ -64,6 +64,57 @@ service cloud.firestore {
           allow delete: if isOwner(userId);
         }
       }
+
+      match /cashAccounts/{accountId} {
+        allow read: if isOwner(userId);
+
+        allow create, update: if isOwner(userId)
+          && accountId == 'default'
+          && request.resource.data.ownerUid == userId
+          && request.resource.data.currency == 'IDR'
+          && request.resource.data.currentBalance is number
+          && request.resource.data.currentBalance >= 0;
+
+        allow delete: if false;
+      }
+
+      match /cashTransactions/{transactionId} {
+        allow read: if isOwner(userId);
+
+        allow create: if isOwner(userId)
+          && request.resource.data.ownerUid == userId
+          && request.resource.data.currency == 'IDR'
+          && request.resource.data.type in [
+            'income',
+            'expense',
+            'transfer_to_savings',
+            'transfer_from_savings'
+          ]
+          && request.resource.data.amount is number
+          && request.resource.data.amount > 0;
+
+        allow update: if isOwner(userId)
+          && request.resource.data.ownerUid == userId
+          && request.resource.data.currency == 'IDR'
+          && request.resource.data.type in ['income', 'expense']
+          && request.resource.data.amount is number
+          && request.resource.data.amount > 0;
+
+        allow delete: if isOwner(userId);
+      }
+
+      match /categories/{categoryId} {
+        allow read: if isOwner(userId);
+
+        allow create, update: if isOwner(userId)
+          && request.resource.data.ownerUid == userId
+          && request.resource.data.type in ['income', 'expense']
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 1
+          && request.resource.data.name.size() <= 40;
+
+        allow delete: if isOwner(userId);
+      }
     }
   }
 }
