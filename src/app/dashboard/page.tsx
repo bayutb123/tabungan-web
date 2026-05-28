@@ -275,9 +275,9 @@ function ActionDialog({
   if (!open) return null;
 
   return (
-    <dialog open className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <dialog open className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50 p-4 text-slate-900 backdrop-blur-sm dark:text-slate-100">
       <button type="button" aria-label="Tutup dialog" className="absolute inset-0 h-full w-full cursor-default" onClick={onClose} />
-      <div className="panel relative z-10 w-full max-w-lg p-5 shadow-xl">
+      <div className="panel relative z-10 w-full max-w-lg p-5 text-slate-900 shadow-xl dark:text-slate-100">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
           <button type="button" onClick={onClose} className="btn-ghost">
